@@ -23,7 +23,7 @@ const operation = {
 $numberButtons.forEach(button => {
     button.addEventListener("click", (event) => {
         if (result) {
-            clearValues()
+            clear()
             $screen.value = ""
         }
         setCurrentValue(event.target.textContent)
@@ -33,7 +33,7 @@ $numberButtons.forEach(button => {
 // Add listeners to +, -, /, *
 $operatorButtons.forEach(button => {
     if (result) {
-        clearValues()
+        clear()
         $screen.value = ""
     }
     if (!button.id)
@@ -49,7 +49,7 @@ $equalsButton.addEventListener("click", (event) => {
 })
 
 $clearButton.addEventListener("click", (event) => {
-    clearValues()
+    clear()
     $screen.value = ""
 })
 
@@ -95,7 +95,7 @@ function setOperator(value) {
         error()
 }
 
-function clearValues() {
+function clear() {
     currentValue = undefined
     savedValue = undefined
     isError = false;
@@ -143,7 +143,7 @@ document.addEventListener('keydown', (event) => {
         case ("9"):
         case ("0"):
             if (result) {
-                clearValues()
+                clear()
                 $screen.value = ""
             }
             setCurrentValue(event.key)
@@ -156,7 +156,7 @@ document.addEventListener('keydown', (event) => {
         case ("*"):
         case ("/"):
             if (result) {
-                clearValues()
+                clear()
                 $screen.value = ""
             }
             setOperator(event.key)
@@ -168,7 +168,7 @@ document.addEventListener('keydown', (event) => {
             calculate()
             break;
         case ("Escape"):
-            clearValues()
+            clear()
             $screen.value = ""
             break;
         default:

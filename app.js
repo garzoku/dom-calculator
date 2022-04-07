@@ -15,16 +15,18 @@ const operation = {
     '+': function (x, y) { return x + y },
     '-': function (x, y) { return x - y },
     'x': function (x, y) { return x * y },
+    '*': function (x, y) { return x * y },
     '÷': function (x, y) { return x / y },
+    '/': function (x, y) { return x / y },
 }
 
 $numberButtons.forEach(button => {
     button.addEventListener("click", (event) => {
         if (result) {
             clearValues()
-            $screen.textContent = ""
+            $screen.value = ""
         }
-        setCurrentValue(event)
+        setCurrentValue(event.target.textContent)
         setScreenValue(event.target.textContent)
     })
 })
@@ -32,43 +34,25 @@ $numberButtons.forEach(button => {
 $operatorButtons.forEach(button => {
     if (result) {
         clearValues()
-        $screen.textContent = ""
+        $screen.value = ""
     }
     if (!button.id)
         button.addEventListener("click", (event) => {
-            setOperator(event)
+            setOperator(event.target.textContent)
             saveCurrentValue()
             setScreenValue(event.target.textContent)
         })
 })
 
-
 $equalsButton.addEventListener("click", (event) => {
-    if (isError)
-        return
-    if (operator === "÷" && currentValue === "0") {
-        error()
-        return
-    }
-    if (operator === undefined
-        || savedValue === undefined
-        || currentValue === undefined) {
-        error()
-        return
-    }
-    $screen.textContent = ""
-    result = operation[operator](+savedValue, +currentValue)
-    setScreenValue(result)
-    console.log(currentValue)
-    console.log(savedValue)
+    calculate()
 })
 
 $clearButton.addEventListener("click", (event) => {
     clearValues()
-    $screen.textContent = ""
+    $screen.value = ""
 })
 
-// functions
 function getNumberButtons() {
     let buttons = []
     for (const button of allButtons) {
@@ -78,14 +62,13 @@ function getNumberButtons() {
     return buttons
 }
 
-function setCurrentValue(event) {
+function setCurrentValue(value) {
     if (isError)
         return
     if (!currentValue)
-        currentValue = event.target.textContent
+        currentValue = value
     else
-        currentValue = currentValue + event.target.textContent
-    return currentValue
+        currentValue = currentValue + value
 }
 
 function saveCurrentValue() {
@@ -97,17 +80,17 @@ function saveCurrentValue() {
 
 function setScreenValue(value) {
     if (!isError) {
-        if (!$screen.textContent)
-            $screen.textContent = value
+        if (!$screen.value)
+            $screen.value = value
         else
-            $screen.textContent = $screen.textContent + value
+            $screen.value = $screen.value + value
     } else
-        $screen.textContent = "Error"
+        $screen.value = "Error"
 }
 
-function setOperator(event) {
+function setOperator(value) {
     if (!operator)
-        operator = event.target.textContent
+        operator = value
     else
         error()
 }
@@ -123,138 +106,72 @@ function clearValues() {
 
 function error() {
     isError = true
-    $screen.textContent = "Error"
+    $screen.value = "Error"
 }
 
-
-/*const allButtons = document.querySelectorAll("span")
-const divideButton = document.querySelector("span:nth-child(2)")
-const multiplyButton = document.querySelector("span:nth-child(3)")
-const subtractButton = document.querySelector("span:nth-child(7)")
-const addButton = document.querySelector("span:nth-child(11)")
-const equalsButton = document.querySelector("#equals")
-const $screen = document.querySelector("#screen")
-const clearButton = document.querySelector("#clearValues")
-const operatorButtons = getOperatorButtons()
-
-const numberButtons = getNumberButtons()
-let operatorChosen = false;
-let isError = false
-let operator
-let currentNumber
-let savedNumber
-let result
-
-clearButton.addEventListener("click", (event) => clearValues())
-equalsButton.addEventListener("click", (event) => evaluate())
-operatorButtons.forEach(button => {
-    button.addEventListener("click", (event) => selectOperator(event))
-})
-
-numberButtons.forEach(button => {
-    button.addEventListener("click", (event) => {
-        setValues(event)
-    })
-})
-
-function getNumberButtons() {
-    let buttons = []
-    for (const button of allButtons) {
-        if (!button.classList.contains("operator"))
-            buttons.push(button)
-    }
-    return buttons
-}
-
-function setValues(event) {
+function calculate() {
     if (isError)
         return
-    if (!$screen.textContent) {
-        $screen.textContent = event.target.textContent
-        currentNumber = event.target.textContent
-    } else {
-        $screen.textContent = $screen.textContent + event.target.textContent
-        if (savedNumber) {
-            currentNumber = event.target.textContent
-        } else {
-            currentNumber = currentNumber + event.target.textContent
-        }
-    }
-}
-
-function getOperatorButtons() {
-    const operationButtons = document.querySelectorAll(".operator")
-    const buttons = []
-    for (const button of operationButtons) {
-        if (!button.id)
-            buttons.push(button)
-    }
-    return buttons
-}
-
-function evaluate() {
-    if (!savedNumber || isError) {
+    if (operator === "÷"
+        || operator === "/"
+        && currentValue === "0") {
         error()
         return
-    } else {
-        savedNumber = +savedNumber
-        currentNumber = +currentNumber
-        console.log(currentNumber)
-        switch (operator) {
-            case "+":
-                result = savedNumber + currentNumber
-                $screen.textContent = `${result}`
-                break;
-            case "-":
-                result = savedNumber + currentNumber
-                $screen.textContent = `${result}`
-                break;
-            case "x":
-                result = savedNumber + currentNumber
-                $screen.textContent = `${result}`
-                break;
-            case "÷":
-                if (currentNumber === 0) {
-                    error()
-                    return
-                }
-                result = savedNumber + currentNumber
-                $screen.textContent = `${result}`
-                break;
-            default:
-                //Statements executed when none of
-                //the values match the value of the expression
-                break;
-        }
     }
-
-}
-
-function clearValues() {
-    $screen.textContent = ""
-    currentNumber = undefined
-    savedNumber = undefined
-    operatorChosen = false
-    operator = undefined
-    isError = false;
-
-}
-function error() {
-    clearValues()
-    isError = true
-    $screen.textContent = "Error"
-}
-
-function selectOperator(event) {
-    if (isError)
-        return
-    if (!operatorChosen) {
-        savedNumber = currentNumber
-        operator = event.target.textContent
-        $screen.textContent = $screen.textContent + event.target.textContent
-        currentNumber = undefined
-        operatorChosen = true
-    } else
+    if (operator === undefined
+        || savedValue === undefined
+        || currentValue === undefined) {
         error()
-}*/
+        return
+    }
+    $screen.value = ""
+    result = operation[operator](+savedValue, +currentValue)
+    setScreenValue(result)
+}
 
+//Keypress Map
+document.addEventListener('keydown', (event) => {
+    switch (event.key) {
+        case ("1"):
+        case ("2"):
+        case ("3"):
+        case ("4"):
+        case ("5"):
+        case ("6"):
+        case ("7"):
+        case ("8"):
+        case ("9"):
+        case ("0"):
+            if (result) {
+                clearValues()
+                $screen.value = ""
+            }
+            setCurrentValue(event.key)
+            setScreenValue(event.key)
+            break;
+        case ("+"):
+        case ("-"):
+        case ("x"):
+        case ("÷"):
+        case ("*"):
+        case ("/"):
+            if (result) {
+                clearValues()
+                $screen.value = ""
+            }
+            setOperator(event.key)
+            saveCurrentValue()
+            setScreenValue(event.key)
+            break;
+        case ("="):
+        case ("Enter"):
+            calculate()
+            break;
+        case ("Escape"):
+            clearValues()
+            $screen.value = ""
+            break;
+        default:
+            break;
+    }
+});

@@ -6,10 +6,10 @@ const $screen = document.querySelector("#screen")
 const $clearButton = document.querySelector("#clear")
 const $equalsButton = document.querySelector("#equals")
 let isError = false
-let currentValue
-let savedValue
-let operator
-let result
+let currentValue = ""
+let savedValue = ""
+let operator = ""
+let result = 0
 
 const operation = {
     '+': function (x, y) { return x + y },
@@ -36,12 +36,13 @@ $operatorButtons.forEach(button => {
         clear()
         $screen.value = ""
     }
-    if (!button.id)
+    if (!button.id) {
         button.addEventListener("click", (event) => {
             setOperator(event.target.textContent)
             saveCurrentValue()
             setScreenValue(event.target.textContent)
         })
+    }
 })
 
 $equalsButton.addEventListener("click", (event) => {
@@ -56,52 +57,52 @@ $clearButton.addEventListener("click", (event) => {
 function getNumberButtons() {
     let buttons = []
     for (const button of allButtons) {
-        if (!button.classList.contains("operator"))
+        if (!button.classList.contains("operator")) {
             buttons.push(button)
+        }
     }
     return buttons
 }
 
 function setCurrentValue(value) {
-    if (isError)
-        return
-    if (!currentValue)
+    if (!isError && !currentValue) {
         currentValue = value
-    else
+    } else if (!isError) {
         currentValue = currentValue + value
+    }
 }
 
 function saveCurrentValue() {
-    if (isError)
-        return
-    savedValue = currentValue
-    currentValue = undefined
+    if (!isError) {
+        savedValue = currentValue
+        currentValue = undefined
+    }
 }
 
 function setScreenValue(value) {
-    if (!isError) {
-        if (!$screen.value)
-            $screen.value = value
-        else
-            $screen.value = $screen.value + value
-    } else
+    if (!isError && !$screen.value) {
+        $screen.value = value
+    } else if (!isError && $screen.value) {
+        $screen.value = $screen.value + value
+    } else {
         $screen.value = "Error"
+    }
 }
 
 function setOperator(value) {
-    if (!operator)
+    if (!operator) {
         operator = value
-    else
+    } else {
         error()
+    }
 }
 
 function clear() {
-    currentValue = undefined
-    savedValue = undefined
-    isError = false;
-    operator = undefined
-    result = undefined
-
+    currentValue = ""
+    savedValue = ""
+    isError = false
+    operator = ""
+    result = 0
 }
 
 function error() {
@@ -110,23 +111,18 @@ function error() {
 }
 
 function calculate() {
-    if (isError)
-        return
-    if (operator === "÷"
-        || operator === "/"
-        && currentValue === "0") {
+    if ((isError) ||
+        (operator === "÷" && currentValue === "0") ||
+        (operator === "/" && currentValue === "0") ||
+        (operator === undefined
+            || savedValue === undefined
+            || currentValue === undefined)) {
         error()
-        return
+    } else {
+        $screen.value = ""
+        result = operation[operator](+savedValue, +currentValue)
+        setScreenValue(result)
     }
-    if (operator === undefined
-        || savedValue === undefined
-        || currentValue === undefined) {
-        error()
-        return
-    }
-    $screen.value = ""
-    result = operation[operator](+savedValue, +currentValue)
-    setScreenValue(result)
 }
 
 //Keypress Map
